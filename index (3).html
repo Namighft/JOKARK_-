@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Storage Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .modal, .add-form {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content, .form-content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        .delete {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+        .open {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Local Storage Manager</h1>
+    <button id="showAddForm">Thêm Dữ Liệu</button>
+    <button id="showModal">Xem Local Storage</button>
+
+    <div id="addForm" class="add-form">
+        <div class="form-content">
+            <span class="close close-form">&times;</span>
+            <h2>Thêm Dữ Liệu</h2>
+            <input type="text" id="keyInput" placeholder="Nhập key" />
+            <input type="text" id="valueInput" placeholder="Nhập value" />
+            <button onclick="addData()">Thêm</button>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close close-modal">&times;</span>
+            <h2>Nội dung Local Storage</h2>
+            <table id="localStorageTable">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("myModal");
+        const addForm = document.getElementById("addForm");
+        const showModalBtn = document.getElementById("showModal");
+        const showAddFormBtn = document.getElementById("showAddForm");
+        const closeModalSpan = document.querySelector(".close-modal");
+        const closeFormSpan = document.querySelector(".close-form");
+
+        showModalBtn.onclick = function() {
+            modal.style.display = "flex";
+            updateTable();
+        };
+
+        showAddFormBtn.onclick = function() {
+            addForm.style.display = "flex";
+        };
+
+        closeModalSpan.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        closeFormSpan.onclick = function() {
+            addForm.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            } else if (event.target === addForm) {
+                addForm.style.display = "none";
+            }
+        };
+
+        function updateTable() {
+            const tableBody = document.getElementById('localStorageTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = key;
+                row.insertCell(1).textContent = value;
+                const actionsCell = row.insertCell(2);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Xóa';
+                deleteButton.className = 'delete';
+                deleteButton.onclick = function() {
+                    localStorage.removeItem(key);
+                    updateTable();
+                };
+                const openButton = document.createElement('button');
+                openButton.textContent = 'Mở';
+                openButton.className = 'open';
+                openButton.onclick = function() {
+                    window.open(value, '_blank');
+                };
+                actionsCell.appendChild(openButton);
+                actionsCell.appendChild(deleteButton);
+            }
+        }
+
+        function addData() {
+            const key = document.getElementById('keyInput').value;
+            const value = document.getElementById('valueInput').value;
+            if (key && value) {
+                localStorage.setItem(key, value);
+                document.getElementById('keyInput').value = '';
+                document.getElementById('valueInput').value = '';
+                addForm.style.display = 'none';
+                updateTable();
+            } else {
+                alert("Vui lòng nhập cả key và value!");
+            }
+        }
+    </script>
+</body>
+</html>
